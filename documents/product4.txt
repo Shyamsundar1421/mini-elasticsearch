@@ -1,0 +1,4 @@
+Smart Watch
+
+A smart watch with heart rate tracking,
+fitness monitoring, notifications, and long battery life.

@@ -1,0 +1,790 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini Search Engine</title>
+
+    <style>
+        
+* {
+    box-sizing: border-box;
+}
+
+:root {
+    --ink: #171735;
+    --muted: #777b98;
+    --blue: #5146ff;
+    --purple: #9b5cff;
+    --pink: #ff5ca8;
+    --cyan: #36cfff;
+    --green: #16c79a;
+    --line: #e8e9f5;
+    --surface: #ffffff;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+    color: var(--ink);
+    background:
+        radial-gradient(ellipse at 5% 0%, #e8e5ff 0, transparent 35%),
+        radial-gradient(ellipse at 100% 20%, #dff8ff 0, transparent 30%),
+        #f6f7fc;
+}
+
+.container {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 32px 28px 64px;
+}
+
+/* HEADER */
+
+.container > h1 {
+    display: inline-block;
+    font-size: clamp(34px, 4vw, 49px);
+    line-height: 1.08;
+    letter-spacing: -2px;
+    margin: 20px 0 12px;
+    font-weight: 850;
+    background: linear-gradient(100deg, #4938ee, #a33cf4 55%, #ff59a7);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.subtitle {
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.7;
+    margin-bottom: 24px;
+}
+
+/* SEARCH */
+
+.search-box {
+    display: flex;
+    gap: 10px;
+    margin: 28px 0 18px;
+    padding: 9px;
+    background: white;
+    border: 1px solid #e4e5f4;
+    border-radius: 16px;
+    box-shadow: 0 12px 35px #4e46d510;
+}
+
+input {
+    flex: 1;
+    min-width: 0;
+    padding: 14px 16px;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    background: #f7f8ff;
+    color: var(--ink);
+    font-size: 15px;
+    outline: none;
+    transition: border 180ms, box-shadow 180ms;
+}
+
+input:focus {
+    border-color: #8c80ff;
+    box-shadow: 0 0 0 4px #6656ff18;
+}
+
+button {
+    padding: 14px 21px;
+    border: 0;
+    border-radius: 10px;
+    color: white;
+    font-size: 14px;
+    font-weight: 750;
+    background: linear-gradient(110deg, #5146ff, #8c4dff);
+    box-shadow: 0 5px 14px #6654f52b;
+    cursor: pointer;
+    transition: transform 180ms, box-shadow 180ms, filter 180ms;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 9px 20px #6654f53b;
+    filter: saturate(1.2);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+button:disabled {
+    opacity: 0.6;
+    cursor: wait;
+    transform: none;
+}
+
+/* STATUS AND ACTIONS */
+
+#status {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.6;
+    margin: 12px 0;
+}
+
+#reindexButton {
+    background: linear-gradient(110deg, #0da987, #20c99a);
+    box-shadow: 0 5px 14px #16c79a25;
+}
+
+/* SEARCH RESULTS */
+
+#results {
+    margin-top: 22px;
+}
+
+.result {
+    position: relative;
+    overflow: hidden;
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 23px 25px;
+    margin: 14px 0;
+    box-shadow: 0 5px 20px #28245d06;
+    transition: transform 180ms, box-shadow 180ms, border-color 180ms;
+}
+
+.result::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(#5146ff, #d35dff);
+}
+
+.result:hover {
+    transform: translateY(-3px);
+    border-color: #d4d0ff;
+    box-shadow: 0 14px 28px #5146ff12;
+}
+
+.result h2 {
+    font-size: 19px;
+    letter-spacing: -0.3px;
+    margin: 0 0 10px;
+}
+
+.result p {
+    color: #5e627d;
+    line-height: 1.8;
+    font-size: 14px;
+}
+
+.meta {
+    color: #8178d9;
+    font-size: 12px;
+    font-weight: 650;
+}
+
+/* ANALYTICS */
+
+.analytics-charts {
+    margin-top: 38px;
+}
+
+.analytics-charts h2 {
+    font-size: 27px;
+    letter-spacing: -0.8px;
+    margin: 0 0 8px;
+}
+
+.analytics-charts h3 {
+    font-size: 15px;
+    margin: 0 0 18px;
+    color: #424465;
+}
+
+.chart-container {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px;
+    margin-top: 24px;
+}
+
+.chart-container > div {
+    min-width: 0;
+    padding: 24px;
+    background: linear-gradient(145deg, #fff, #faf9ff);
+    border: 1px solid #e5e4f5;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px #3930a00b;
+    transition: transform 180ms, box-shadow 180ms;
+}
+
+.chart-container > div:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 35px #3930a015;
+}
+
+.chart-container img {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 9px;
+    border: 1px solid #eeedf8;
+    background: white;
+}
+
+/* DIVIDER */
+
+hr {
+    border: 0;
+    border-top: 1px solid #e4e5f2;
+    margin: 38px 0;
+}
+
+/* MOBILE */
+
+@media (max-width: 700px) {
+    .container {
+        padding: 22px 15px 40px;
+    }
+
+    .search-box {
+        flex-direction: column;
+    }
+
+    .search-box button {
+        width: 100%;
+    }
+
+    .chart-container {
+        grid-template-columns: 1fr;
+    }
+
+    .chart-container > div {
+        padding: 16px;
+    }
+
+    .result {
+        padding: 20px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        transition: none !important;
+        animation: none !important;
+    }
+}
+
+/* PREMIUM DASHBOARD HEADER */
+
+.dashboard-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 32px;
+}
+
+.eyebrow {
+    color: #6954e8;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    margin-bottom: 14px;
+}
+
+.title-dot {
+    color: #ff5ca8;
+}
+
+.live-badge {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 11px 14px;
+    margin-bottom: 12px;
+    background: white;
+    border: 1px solid #e6e4f6;
+    color: #535775;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    white-space: nowrap;
+}
+
+.live-dot {
+    width: 8px;
+    height: 8px;
+    background: #16c79a;
+    border-radius: 50%;
+    box-shadow: 0 0 0 4px #16c79a20;
+}
+
+/* STATISTIC CARDS */
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    margin: 26px 0 30px;
+}
+
+.stat-card {
+    position: relative;
+    overflow: hidden;
+    padding: 22px;
+    min-width: 0;
+    background: white;
+    border: 1px solid #e8e8f5;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px #3930a008;
+    transition: transform 180ms, box-shadow 180ms;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 30px #3930a014;
+}
+
+.stat-card::after {
+    content: "";
+    position: absolute;
+    width: 95px;
+    height: 95px;
+    border-radius: 50%;
+    right: -35px;
+    bottom: -42px;
+    opacity: 0.12;
+}
+
+.stat-purple { border-top: 3px solid #8858f5; }
+.stat-blue { border-top: 3px solid #3b82f6; }
+.stat-pink { border-top: 3px solid #f15bb5; }
+.stat-green { border-top: 3px solid #14b88a; }
+
+.stat-purple::after { background: #8858f5; }
+.stat-blue::after { background: #3b82f6; }
+.stat-pink::after { background: #f15bb5; }
+.stat-green::after { background: #14b88a; }
+
+.stat-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    color: #737793;
+    font-size: 12px;
+    font-weight: 650;
+}
+
+.stat-icon {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+    border-radius: 10px;
+    font-size: 19px;
+    font-weight: 800;
+}
+
+.stat-purple .stat-icon { color: #8858f5; background: #f0eaff; }
+.stat-blue .stat-icon { color: #3b82f6; background: #eaf3ff; }
+.stat-pink .stat-icon { color: #e849a4; background: #fff0f8; }
+.stat-green .stat-icon { color: #0a9b73; background: #e4faf2; }
+
+.stat-value {
+    margin: 19px 0 7px;
+    color: #20213f;
+    font-size: clamp(27px, 3vw, 36px);
+    font-weight: 850;
+    letter-spacing: -1.5px;
+    overflow-wrap: anywhere;
+}
+
+.status-value {
+    font-size: 22px;
+    letter-spacing: -0.5px;
+}
+
+.stat-caption {
+    color: #9295ad;
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+@media (max-width: 900px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 600px) {
+    .dashboard-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .stats-grid {
+        gap: 10px;
+    }
+
+    .stat-card {
+        padding: 16px;
+    }
+
+    .live-badge {
+        margin-bottom: 0;
+    }
+}
+.analytics-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    width: 100%;
+    margin: 20px 0;
+}
+
+.analytics-kpi {
+    min-width: 0;
+    padding: 20px;
+    background: linear-gradient(135deg, #ffffff, #f0edff);
+    border: 1px solid #e3ddff;
+    border-radius: 14px;
+    box-shadow: 0 6px 20px rgba(80, 60, 160, 0.08);
+    overflow-wrap: anywhere;
+}
+
+.analytics-kpi p {
+    margin: 0 0 12px;
+    color: #6b6685;
+    font-size: 13px;
+}
+
+.analytics-kpi h3 {
+    margin: 0;
+    color: #35216d;
+    font-size: 22px;
+}
+
+@media (max-width: 900px) {
+    .analytics-kpi-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 450px) {
+    .analytics-kpi-grid {
+        grid-template-columns: 1fr;
+    }
+}
+    </style>
+</head>
+
+<body>
+    <main class="container">
+        
+<div class="dashboard-header">
+    <div>
+        <div class="eyebrow">SEARCH INTELLIGENCE PLATFORM</div>
+        <h1>Mini Search Engine<span class="title-dot">.</span></h1>
+        <p class="subtitle">
+            Explore your document index, discover insights, and search with relevance.
+        </p>
+    </div>
+    <div class="live-badge">
+        <span class="live-dot"></span>
+        ENGINE DASHBOARD
+    </div>
+</div>
+
+<section class="stats-grid">
+    <div class="stat-card stat-purple">
+        <div class="stat-top">
+            <span>Indexed Documents</span>
+            <span class="stat-icon">▤</span>
+        </div>
+        <div class="stat-value" id="totalDocuments">—</div>
+        <div class="stat-caption">Documents in your index</div>
+    </div>
+
+    <div class="stat-card stat-blue">
+        <div class="stat-top">
+            <span>Unique Terms</span>
+            <span class="stat-icon">⌘</span>
+        </div>
+        <div class="stat-value" id="uniqueTerms">—</div>
+        <div class="stat-caption">Terms available to search</div>
+    </div>
+
+    <div class="stat-card stat-pink">
+        <div class="stat-top">
+            <span>Search Activity</span>
+            <span class="stat-icon">↗</span>
+        </div>
+        <div class="stat-value" id="searchActivity">—</div>
+        <div class="stat-caption">Queries recorded in your logs</div>
+    </div>
+
+    <div class="stat-card stat-green">
+        <div class="stat-top">
+            <span>Engine Status</span>
+            <span class="stat-icon">✓</span>
+        </div>
+        <div class="stat-value status-value" id="engineStatus">Checking</div>
+        <div class="stat-caption">Backend connection</div>
+    </div>
+</section>
+
+
+        <form class="search-box" id="searchForm">
+            <input
+                type="search"
+                id="searchInput"
+                placeholder="Try wireless headphones..."
+                aria-label="Search products"
+                required
+            >
+            <button id="searchButton" type="submit">Search</button>
+        </form>
+
+        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+    <div id="status">Loading search engine...</div>
+    <button id="reindexButton" type="button">Rebuild Index</button>
+    <button id="analyticsButton" type="button">
+    View Analytics
+</button>
+
+<div id="analyticsResults"></div>
+</div>
+        <section id="results" aria-live="polite"></section>
+        <hr style="margin: 35px 0; border: 0; border-top: 1px solid #cbd5e1;">
+
+<section class="analytics-charts">
+    <h2>Search Analytics</h2>
+
+    <div class="chart-container">
+        <div>
+            <h3>Top 10 Search Terms</h3>
+            <img src="/search_analytics.png"
+                 alt="Top 10 search terms chart">
+        </div>
+
+        <div>
+            <h3>Zipf's Law</h3>
+            <img src="/zipf_chart.png"
+                 alt="Zipf's law chart">
+        </div>
+    </div>
+</section>
+    </main>
+
+    <script>
+        const form = document.getElementById("searchForm");
+        const input = document.getElementById("searchInput");
+        const button = document.getElementById("searchButton");
+        const reindexButton = document.getElementById("reindexButton");
+        const status = document.getElementById("status");
+        const results = document.getElementById("results");
+        const analyticsButton = document.getElementById("analyticsButton");
+        const analyticsResults = document.getElementById("analyticsResults");
+        const totalDocuments = document.getElementById("totalDocuments");
+const uniqueTerms = document.getElementById("uniqueTerms");
+const searchActivity = document.getElementById("searchActivity");
+const engineStatus = document.getElementById("engineStatus");
+
+        async function loadStats() {
+    try {
+        const response = await fetch("/api/stats");
+
+        if (!response.ok) {
+            throw new Error("Stats unavailable");
+        }
+
+        const data = await response.json();
+
+        document.getElementById("totalDocuments").textContent =
+            data.total_documents;
+
+        document.getElementById("uniqueTerms").textContent =
+            data.unique_terms;
+
+        document.getElementById("searchActivity").textContent =
+            data.total_searches;
+
+        document.getElementById("engineStatus").textContent =
+            "Online";
+
+        status.textContent =
+            `SEARCH ENGINE ONLINE | ${data.total_documents} DOCUMENTS | ` +
+            `${data.unique_terms} UNIQUE TERMS`;
+
+    } catch (error) {
+        console.error("Dashboard stats error:", error);
+
+        document.getElementById("engineStatus").textContent =
+            "Offline";
+
+        status.textContent =
+            "Could not connect to the search backend.";
+    }
+}
+
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            const query = input.value.trim();
+            if (!query) return;
+
+            button.disabled = true;
+            status.textContent = "Searching...";
+            results.replaceChildren();
+
+            try {
+                const response = await fetch(
+                    `/api/search?q=${encodeURIComponent(query)}`
+                );
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || "Search failed.");
+                }
+
+                status.textContent =
+    `SEARCH COMPLETE | ${data.total_results} RESULTS | ` +
+    `${data.search_time_ms} MS`;
+
+                if (data.results.length === 0) {
+                    results.textContent = "No matching documents found.";
+                }
+
+                for (const item of data.results) {
+                    const card = document.createElement("article");
+                    card.className = "result";
+
+                    const title = document.createElement("h2");
+                    title.textContent = item.title;
+
+                    const snippet = document.createElement("p");
+                    snippet.textContent = item.snippet;
+
+                    const meta = document.createElement("div");
+                    meta.className = "meta";
+                    meta.textContent =
+                        `${item.filename} · Relevance score: ${item.score}`;
+
+                    card.append(title, snippet, meta);
+                    results.appendChild(card);
+                }
+                await loadStats();
+            } catch (error) {
+                status.textContent = error.message ||
+                    "Could not connect. Is the Flask server running?";
+            } finally {
+                button.disabled = false;
+            }
+        });
+reindexButton.addEventListener("click", async () => {
+    reindexButton.disabled = true;
+    status.textContent = "Rebuilding index...";
+
+    try {
+        const response = await fetch("/api/reindex", {
+            method: "POST"
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || "Reindex failed.");
+        }
+
+        status.textContent =
+            `INDEX REBUILT | ${data.total_documents} DOCUMENTS | ` +
+            `${data.unique_terms} UNIQUE TERMS`;
+            await loadStats();
+    } 
+    
+    catch (error) {
+        status.textContent = error.message || "Could not rebuild index.";
+    } finally {
+        reindexButton.disabled = false;
+    }
+});
+analyticsButton.addEventListener("click", async () => {
+    analyticsButton.disabled = true;
+    analyticsResults.textContent = "Loading analytics...";
+
+    try {
+        const response = await fetch("/api/analytics");
+        if (!response.ok) throw new Error("Could not load analytics.");
+
+        const data = await response.json();
+        totalDocuments.textContent = data.total_documents;
+uniqueTerms.textContent = data.unique_terms;
+searchActivity.textContent = data.total_searches;
+engineStatus.textContent = "Online";
+engineStatus.textContent = "Offline";
+        analyticsResults.replaceChildren();
+        const metrics = document.createElement("div");
+metrics.className = "analytics-kpi-grid";
+
+const mostPopular = data.most_popular_term;
+
+const cards = [
+    ["Total Queries", data.total_searches],
+    ["Unique Terms", data.unique_terms],
+    [
+        "Top Search Term",
+        mostPopular ? `${mostPopular.term} (${mostPopular.count})` : "No data"
+    ],
+    ["Indexed Documents", data.total_documents]
+];
+
+for (const [label, value] of cards) {
+    const card = document.createElement("div");
+    card.className = "analytics-kpi";
+
+    const heading = document.createElement("p");
+    heading.textContent = label;
+
+    const metric = document.createElement("h3");
+    metric.textContent = value;
+
+    card.append(heading, metric);
+    metrics.appendChild(card);
+}
+
+analyticsResults.appendChild(metrics);
+
+        const summary = document.createElement("p");
+        summary.textContent = `Total search words: ${data.total_searches}`;
+        analyticsResults.appendChild(summary);
+
+        if (data.top_terms.length === 0) {
+            analyticsResults.append("No search history yet.");
+        }
+
+        for (const item of data.top_terms) {
+            const row = document.createElement("p");
+            row.textContent = `${item.term}: ${item.count} searches`;
+            analyticsResults.appendChild(row);
+        }
+    } catch (error) {
+        analyticsResults.textContent = error.message;
+    } finally {
+        analyticsButton.disabled = false;
+    }
+});
+        loadStats();
+    </script>
+</body>
+</html>

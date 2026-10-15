@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+
+# Generated analytics charts
+search_analytics.png
+zipf_chart.png
+
+# Local search history
+search_logs.txt
